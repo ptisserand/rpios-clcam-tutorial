@@ -5,9 +5,10 @@
 #	A makefile script for generation of raspberry pi kernel images.
 ###############################################################################
 
+TOP=$(shell pwd)
 # The toolchain to use. arm-none-eabi works, but there does exist 
 # arm-bcm2708-linux-gnueabi.
-ARMGNU ?= arm-none-eabi
+ARMGNU ?= $(TOP)/../arm-2008q3/bin/arm-none-eabi
 
 # The intermediate directory for compiled object files.
 BUILD = build/
