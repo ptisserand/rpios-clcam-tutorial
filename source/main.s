@@ -1,15 +1,19 @@
 .section .init
 .globl _start
 _start:
-	/* setup GPIO 16 as output */
-	ldr r0,=0x20200000 	/* GPIO controler */
-	mov r1,#1		/* Enable output */
-	lsl r1,#18		/* on GPIO n + 6 */
-	str r1,[r0,#4]		/* with n = 10 (second bank) */
+	b main
 
-	/* play with LED */
-	mov r1,#1
-	lsl r1,#16
+.section .text
+main:
+	mov sp,#0x8000
+
+	pinNum .req r0
+	pinFunc .req r1
+	mov pinNum,#16		/* LED is plugged on pin 16 */
+	mov pinFunc,#1		/* set GPIO as output */
+	bl SetGpioFunction
+	.unreq pinNum
+	.unreq pinFunc
 
 loop$:
 	/* delay before turning on */
@@ -20,8 +24,14 @@ wait1$:
 	bne wait1$
 
 	/* turn on */
-	str r1,[r0,#40]
-
+	pinNum .req r0
+	pinVal .req r1
+	mov pinNum,#16		/* LED 16 */
+	mov pinVal,#0		/* turn on */
+	bl SetGpio
+	.unreq pinNum
+	.unreq pinVal
+	
 	/* delay before turning off */
 	mov r2,#0x3F0000
 wait2$:
@@ -30,6 +40,12 @@ wait2$:
 	bne wait2$
 	
 	/* turn off */
-	str r1,[r0,#28]
+	pinNum .req r0
+	pinVal .req r1
+	mov pinNum,#16		/* LED 16 */
+	mov pinVal,#1		/* turn off */
+	bl SetGpio
+	.unreq pinNum
+	.unreq pinVal
 
 	b loop$
