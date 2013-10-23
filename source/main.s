@@ -14,15 +14,6 @@ main:
 	bl SetGpioFunction
 	.unreq pinNum
 	.unreq pinFunc
-
-loop$:
-	/* delay before turning on */
-	mov r2,#0x3F0000
-wait1$:
-	sub r2,#1
-	cmp r2,#0
-	bne wait1$
-
 	/* turn on */
 	pinNum .req r0
 	pinVal .req r1
@@ -31,14 +22,24 @@ wait1$:
 	bl SetGpio
 	.unreq pinNum
 	.unreq pinVal
-	
-	/* delay before turning off */
-	mov r2,#0x3F0000
-wait2$:
-	sub r2,#1
-	cmp r2,#0
-	bne wait2$
-	
+
+loop$:
+	/* delay */
+	ldr r0, =0x7a120
+	bl Wait
+	/* turn on */
+	pinNum .req r0
+	pinVal .req r1
+	mov pinNum,#16		/* LED 16 */
+	mov pinVal,#0		/* turn on */
+	bl SetGpio
+	.unreq pinNum
+	.unreq pinVal
+
+	/* delay */	
+	ldr r0, =0xf4240
+	bl Wait
+
 	/* turn off */
 	pinNum .req r0
 	pinVal .req r1
