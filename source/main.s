@@ -7,46 +7,32 @@ _start:
 main:
 	mov sp,#0x8000
 
-	pinNum .req r0
-	pinFunc .req r1
-	mov pinNum,#16		/* LED is plugged on pin 16 */
-	mov pinFunc,#1		/* set GPIO as output */
+	mov r0,#16		/* LED is plugged on pin 16 */
+	mov r1,#1		/* set GPIO as output */
 	bl SetGpioFunction
-	.unreq pinNum
-	.unreq pinFunc
-	/* turn on */
-	pinNum .req r0
-	pinVal .req r1
-	mov pinNum,#16		/* LED 16 */
-	mov pinVal,#0		/* turn on */
-	bl SetGpio
-	.unreq pinNum
-	.unreq pinVal
 
+	ptrn .req r4
+	ldr ptrn,=pattern
+	/* ldr ptrn,[ptrn] */
+	seq .req r5
+	mov seq,#0
+	
 loop$:
-	/* delay */
-	ldr r0, =0x7a120
-	bl Wait
-	/* turn on */
-	pinNum .req r0
-	pinVal .req r1
-	mov pinNum,#16		/* LED 16 */
-	mov pinVal,#0		/* turn on */
+	mov r0,#16		/* LED 16 */
+	mov r1,#1
+	
+	lsl r1,r1,seq
+	and r1,r1,ptrn
 	bl SetGpio
-	.unreq pinNum
-	.unreq pinVal
-
-	/* delay */	
-	ldr r0, =0xf4240
+	ldr r0, =250000
 	bl Wait
 
-	/* turn off */
-	pinNum .req r0
-	pinVal .req r1
-	mov pinNum,#16		/* LED 16 */
-	mov pinVal,#1		/* turn off */
-	bl SetGpio
-	.unreq pinNum
-	.unreq pinVal
+	add seq,#1	
+	and seq,seq,#0b11111
 
 	b loop$
+
+.section .data
+.align 2
+pattern:
+.int 0b00000000001010100010001000101010
